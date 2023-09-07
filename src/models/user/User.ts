@@ -18,6 +18,13 @@ export interface UserDBModel {
     created_at: string
 }
 
+export interface UserModel {
+    id: string,
+    name: string,
+    role: USER_ROLES,
+    createdAt: string
+}
+
 export class User {
     constructor(
         private id: string,
@@ -84,6 +91,15 @@ export class User {
             password: this.password,
             role: this.role,
             created_at: this.createdAt
+        }
+    }
+
+    public toBusinessModel(): UserModel {
+        return {
+            id: this.id,
+            name: this.name,
+            role: this.role,
+            createdAt: this.createdAt
         }
     }
 
