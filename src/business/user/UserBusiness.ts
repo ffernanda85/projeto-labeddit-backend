@@ -1,10 +1,10 @@
-import { UserDatabase } from "../database/UserDatabase";
-import { SignupInputDTO, SignupOutputDTO } from "../dtos/signup.dto";
-import { BadRequestError } from "../errors/BadRequestError";
-import { TokenPayload, USER_ROLES, User } from "../models/User";
-import { HashManager } from "../services/HashManager";
-import { IdGenerator } from "../services/IdGenerator";
-import { TokenManager } from "../services/TokenManager";
+import { UserDatabase } from "../../database/user/UserDatabase";
+import { SignupInputDTO, SignupOutputDTO } from "../../dtos/user/signup.dto";
+import { BadRequestError } from "../../errors/BadRequestError";
+import { TokenPayload, USER_ROLES, User } from "../../models/user/User";
+import { HashManager } from "../../services/HashManager";
+import { IdGenerator } from "../../services/IdGenerator";
+import { TokenManager } from "../../services/TokenManager";
 
 export class UserBusiness{
     constructor(

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { UserBusiness } from "../../business/UserBusiness";
-import { SignupOutputDTO, SignupSchema } from "../../dtos/signup.dto";
+import { UserBusiness } from "../../business/user/UserBusiness";
+import { SignupOutputDTO, SignupSchema } from "../../dtos/user/signup.dto";
 import { ZodError } from 'zod'
 import { BaseDatabase } from "../../database/BaseDatabase";
 import { BaseError } from "../../errors/BaseError";
