@@ -2,7 +2,7 @@ import { LikeDislikeDBModel } from "../../models/post/Post";
 import { BaseDatabase } from "../BaseDatabase";
 
 export class LikeDislikeDatabase extends BaseDatabase{
-    TABLE_NAME = 'likes_dislikes';
+    TABLE_NAME = 'posts_likes_dislikes';
 
     public findLikesDislikes = async (id_post: string, id_user: string): Promise<LikeDislikeDBModel | undefined> => {
         const [likesDislikesDB]: LikeDislikeDBModel[] | undefined = await BaseDatabase.connection(this.TABLE_NAME).where({ post_id: id_post }).andWhere({ user_id: id_user })
