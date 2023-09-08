@@ -5,7 +5,7 @@ CREATE TABLE users(
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     role TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL DEFAULT(DATETIME())
 );
 
 CREATE TABLE posts(
@@ -44,3 +44,7 @@ CREATE TABLE comments_likes_dislikes(
     comment_id TEXT NOT NULL,
     like INTEGER NOT NULL
 );
+
+/* 
+token flavia: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRlYzNmNDA0LWQ5OWEtNGI3NC1iYmE1LTdkM2U1OTQ0ZWYzMyIsIm5hbWUiOiJGbMOhdmlhIEZlcm5hbmRhIiwicm9sZSI6Ik5PUk1BTCIsImlhdCI6MTY5NDA1MDI2MiwiZXhwIjoxNjk0NjU1MDYyfQ.kURjUFd9XDM2fcC8kLGL3yEE8e1UA3AFLzhRnZravcw"
+ */
