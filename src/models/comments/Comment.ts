@@ -1,20 +1,19 @@
-
-export interface PostModelDB {
+export interface CommentModelDB {
     id: string,
+    post_id: string,
     creator_id: string,
     content: string,
     likes: number,
     dislikes: number,
     created_at: string,
-    updated_at: string
+    updated_at: string,
 }
 
-export interface PostModel extends PostModelDB{
-    creatorId: string,
-    creatorName: string
+export interface CommentModel extends CommentModelDB {
+    creator_name: string
 }
 
-export interface PostModelOutput {
+export interface CommentModelOutput {
     id: string,
     content: string,
     likes: number,
@@ -27,15 +26,16 @@ export interface PostModelOutput {
     }
 }
 
-export interface PostLikeDislikeDBModel {
+export interface CommentLikeDislikeDBModel {
     user_id: string,
-    post_id: string,
+    comment_id: string,
     like: number
 }
 
-export class Post {
+export class Comment {
     constructor(
         private id: string,
+        private postId: string,
         private creatorId: string,
         private content: string,
         private likes: number,
@@ -48,11 +48,12 @@ export class Post {
         return this.id
     }
 
+    public getPostId(): string {
+        return this.postId
+    }
+
     public getCreatorId() : string {
         return this.creatorId
-    }
-    public setCreatorId(newCreatorId : string) {
-        this.creatorId = newCreatorId;
     }
 
     public getContent() : string {
@@ -90,21 +91,21 @@ export class Post {
         this.updatedAt = newUpdatedAt;
     }
 
-    /* método para gerar o PostDB a partir da instância de Post */
-    postToDBModel = (): PostModelDB => {
+    /* método para gerar o CommentDB a partir da instância de Comment */
+    commentToDBModel = (): CommentModelDB => {
         return {
             id: this.id,
+            post_id: this.postId,
             creator_id: this.creatorId,
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
             created_at: this.createdAt,
-            updated_at: this.updatedAt
+            updated_at: this.updatedAt,
         }
     }
 
-    /* método do GetPost */
-    postToBusinessModel = (creatorId: string, creatorName: string): PostModelOutput => {
+    commentToBusinessModel = (creatorName: string): CommentModelOutput => {
         return {
             id: this.id,
             content: this.content,
@@ -113,10 +114,9 @@ export class Post {
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             creator: {
-                id: creatorId,
+                id: this.creatorId,
                 name: creatorName
-            }
+            } 
         }
     }
-
 }
