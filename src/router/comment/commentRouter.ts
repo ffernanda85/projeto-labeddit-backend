@@ -25,4 +25,4 @@ commentRouter.post("/:id", commentController.createComment)
 commentRouter.put("/:id", commentController.editComment)
 
 /*=================== Delete Comment =========================*/
-commentRouter.put("/:id", commentController.editComment)
+commentRouter.delete("/:id", commentController.deleteComment)

@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { BaseError } from "../../errors/BaseError";
 import { CreateCommentSchema } from "../../dtos/comment/createComment.dto";
 import { EditCommentOutputDTO, EditCommentSchema } from "../../dtos/comment/editComment.dto";
+import { DeleteCommentOutputDTO, DeleteCommentSchema } from "../../dtos/comment/deleteComment.dto";
 
 export class CommentController {
     constructor(
@@ -44,6 +45,27 @@ export class CommentController {
             })
             const output: EditCommentOutputDTO = await this.commentBusiness.editComment(input)
             res.status(200).send(output)
+        } catch (error: unknown) {
+            console.log(error)
+
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("unexpected error")
+            }
+        }
+    }
+
+    public deleteComment = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const input = DeleteCommentSchema.parse({
+                id: req.params.id,
+                token: req.headers.authorization
+            })
+            const output: DeleteCommentOutputDTO = await this.commentBusiness.deleteComment(input)
+            res.status(200).send(output)            
         } catch (error: unknown) {
             console.log(error)
 
