@@ -7,4 +7,13 @@ export class CommentDatabase extends BaseDatabase {
     public insertCommentDB = async (newComment: CommentModelDB): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME).insert(newComment)
     }
+
+    public findCommentById = async (id: string): Promise<CommentModelDB | undefined> => {
+        const [commentDB]: CommentModelDB[] | undefined = await BaseDatabase.connection(this.TABLE_NAME).where({ id })
+        return commentDB
+    }
+
+    public updateComment = async (content: string, id: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME).update({ content, updated_at: new Date().toISOString() }).where({ id })
+    }
 }

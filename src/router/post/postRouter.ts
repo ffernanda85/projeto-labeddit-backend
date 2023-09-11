@@ -29,18 +29,16 @@ const commentController = new CommentController(
     )
 )
 
-/* Endpoints Posts */
-/* Create Post */
+/************* Endpoints Posts **************/
+
+/*=================== Create Post =========================*/
 postRouter.post("/", postController.createPost)
-/* Get Post */
+/*=================== Get Post ============================*/
 postRouter.get("/", postController.getPosts)
-/* Edit Post */
+/*=================== Edit Post ===========================*/
 postRouter.put("/:id", postController.editPost)
-/* Delete Post */
+/*=================== Delete Post =========================*/
 postRouter.delete("/:id", postController.deletePost)
-/* Like and Dislike Post */
+/*=================== Like and Dislike Post ===============*/
 postRouter.put("/:id/like", postController.likeDislike)
 
-/* Endpoints Comments */
-/* Create Comment */
-postRouter.post("/:id/comment", commentController.createComment)
