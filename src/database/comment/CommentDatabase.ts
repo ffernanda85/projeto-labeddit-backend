@@ -1,4 +1,4 @@
-import { CommentModelDB } from "../../models/comments/Comment"
+import { CommentModel, CommentModelDB } from "../../models/comments/Comment"
 import { BaseDatabase } from "../BaseDatabase"
 
 export class CommentDatabase extends BaseDatabase {
@@ -19,5 +19,24 @@ export class CommentDatabase extends BaseDatabase {
 
     public deleteCommentById = async (id: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME).del().where({ id })
+    }
+
+    public getCommentsByPostId = async (postId: string): Promise<CommentModel[]> => {
+        const commentsDB: CommentModel[] = await BaseDatabase.connection(this.TABLE_NAME)
+            .select(
+                "comments.id",
+                "posts.id as postId",
+                "comments.creator_id",
+                "comments.content",
+                "comments.likes",
+                "comments.dislikes",
+                "comments.created_at",
+                "comments.updated_at",
+                "users.name as creatorName"
+            )
+            .innerJoin("posts", "posts.id", "comments.post_id")
+            .innerJoin("users", "users.id", "comments.creator_id").where("comments.post_id","=", `${postId}`)
+        
+        return commentsDB
     }
 }

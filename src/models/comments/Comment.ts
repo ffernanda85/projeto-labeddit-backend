@@ -10,11 +10,12 @@ export interface CommentModelDB {
 }
 
 export interface CommentModel extends CommentModelDB {
-    creator_name: string
+    creatorName: string
 }
 
 export interface CommentModelOutput {
     id: string,
+    postId: string,
     content: string,
     likes: number,
     dislikes: number,
@@ -108,6 +109,7 @@ export class Comment {
     commentToBusinessModel = (creatorName: string): CommentModelOutput => {
         return {
             id: this.id,
+            postId: this.postId,
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,

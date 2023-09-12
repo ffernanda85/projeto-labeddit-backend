@@ -3,9 +3,10 @@ import { PostDatabase } from "../../database/post/PostDatabase";
 import { CreateCommentInputDTO, CreateCommentOutputDTO } from "../../dtos/comment/createComment.dto";
 import { DeleteCommentInputDTO, DeleteCommentOutputDTO } from "../../dtos/comment/deleteComment.dto";
 import { EditCommentInputDTO, EditCommentOutputDTO } from "../../dtos/comment/editComment.dto";
+import { GetCommentsInputDTO, GetCommentsOutputDTO } from "../../dtos/comment/getComments.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
-import { Comment, CommentModelDB } from "../../models/comments/Comment";
+import { Comment, CommentModel, CommentModelDB } from "../../models/comments/Comment";
 import { PostModelDB } from "../../models/post/Post";
 import { TokenPayload, USER_ROLES } from "../../models/user/User";
 import { IdGenerator } from "../../services/IdGenerator";
@@ -91,10 +92,38 @@ export class CommentBusiness {
         await this.commentDatabase.deleteCommentById(commentId)
         //decrementando a coluna comments da tabela posts
         await this.postDatabase.decrementComments(commentDB.post_id)
-        
+
         const output: DeleteCommentOutputDTO = {
             message: "comment deleted"
         }
         return output
+    }
+
+    public getComments = async (input: GetCommentsInputDTO): Promise<GetCommentsOutputDTO> => {
+        const { postId, token } = input
+
+        //verificando se o token é válido
+        const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+        if (payload === null) throw new BadRequestError("invalid token");
+        //verificando se o postId existe no DB
+        const postDB: PostModelDB = await this.postDatabase.getPostById(postId)
+        if (!postDB) throw new NotFoundError("postId not found");
+        
+        const commentsDB: CommentModel[] = await this.commentDatabase.getCommentsByPostId(postId)
+        
+        const comments: GetCommentsOutputDTO = commentsDB.map(comment => {
+           return new Comment(
+                comment.id,
+                comment.post_id,
+                comment.creator_id,
+                comment.content,
+                comment.likes,
+                comment.dislikes,
+                comment.created_at,
+                comment.updated_at
+            ).commentToBusinessModel(comment.creatorName)
+        })
+
+        return comments
     }
 }
