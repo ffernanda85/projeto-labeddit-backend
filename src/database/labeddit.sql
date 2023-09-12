@@ -14,6 +14,7 @@ CREATE TABLE posts(
     content TEXT NOT NULL,
     likes INTEGER NOT NULL,
     dislikes INTEGER NOT NULL,
+    comments INTEGER NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     Foreign Key (creator_id) REFERENCES users(id)
@@ -49,7 +50,7 @@ CREATE TABLE comments_likes_dislikes(
     Foreign Key (comment_id) REFERENCES comment(id)
 );
 
-DROP TABLE comments;
+DROP TABLE posts;
 
 /* 
 token flavia: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRlYzNmNDA0LWQ5OWEtNGI3NC1iYmE1LTdkM2U1OTQ0ZWYzMyIsIm5hbWUiOiJGbMOhdmlhIEZlcm5hbmRhIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNjk0NDY2MTc4LCJleHAiOjE2OTUwNzA5Nzh9.fXiI-4c5LdGzFnmOAQp6mE2CpEkCY-0iDPOvjWWeeUA"
