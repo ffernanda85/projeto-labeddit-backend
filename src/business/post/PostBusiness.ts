@@ -41,6 +41,7 @@ export class PostBusiness {
             content,
             0,
             0,
+            0,
             new Date().toISOString(),
             new Date().toISOString()
         )
@@ -67,6 +68,7 @@ export class PostBusiness {
                 post.content,
                 post.likes,
                 post.dislikes,
+                post.comments,
                 post.created_at,
                 post.updated_at
             )
@@ -101,13 +103,12 @@ export class PostBusiness {
             content,
             postDB.likes,
             postDB.dislikes,
+            postDB.comments,
             postDB.created_at,
             postDB.updated_at
         )
         const postToUpdateDB: PostModelDB = postToUpdate.postToDBModel()
-
         await this.postDatabase.updatePost(postToUpdateDB)
-
     }
 
     public deletePost = async (input: DeletePostInputDTO): Promise<void> => {

@@ -5,6 +5,7 @@ export interface PostModelDB {
     content: string,
     likes: number,
     dislikes: number,
+    comments: number,
     created_at: string,
     updated_at: string
 }
@@ -19,6 +20,7 @@ export interface PostModelOutput {
     content: string,
     likes: number,
     dislikes: number,
+    comments: number,
     createdAt: string,
     updatedAt: string,
     creator: {
@@ -40,6 +42,7 @@ export class Post {
         private content: string,
         private likes: number,
         private dislikes: number,
+        private comments: number,
         private createdAt: string,
         private updatedAt: string
     ) { }
@@ -76,6 +79,13 @@ export class Post {
         this.dislikes = newDislikes;
     }
 
+    public getComments() : number {
+        return this.comments
+    }
+    public setComments(comments : number) : void {
+        this.comments = comments
+    }
+
     public getCreatedAt() : string {
         return this.createdAt
     }
@@ -98,6 +108,7 @@ export class Post {
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
+            comments: this.comments,
             created_at: this.createdAt,
             updated_at: this.updatedAt
         }
@@ -110,6 +121,7 @@ export class Post {
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
+            comments: this.comments,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             creator: {

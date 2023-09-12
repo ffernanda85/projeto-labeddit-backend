@@ -40,8 +40,10 @@ export class CommentBusiness {
             new Date().toISOString(),
             new Date().toISOString()
         )
-        
+        //alimentando a tabela comments DB
         await this.commentDatabase.insertCommentDB(newComment.commentToDBModel())
+        //incrementando a coluna comments na tabela de posts referenciando o id do post
+        await  this.postDatabase.incrementComments(newComment.getPostId())
 
         const output: CreateCommentOutputDTO = {
             message: "comment created",
@@ -85,8 +87,10 @@ export class CommentBusiness {
 
         //verificando se o token é de ADMIN ou creator
         if (payload.id !== commentDB.creator_id && payload.role !== USER_ROLES.ADMIN) throw new BadRequestError("you aren't authorized for this action");
-        
+        //deletando o comentário no DB
         await this.commentDatabase.deleteCommentById(commentId)
+        //decrementando a coluna comments da tabela posts
+        await this.postDatabase.decrementComments(commentDB.post_id)
         
         const output: DeleteCommentOutputDTO = {
             message: "comment deleted"
