@@ -1,12 +1,14 @@
 import { CommentDatabase } from "../../database/comment/CommentDatabase";
+import { LikeDislikeCommentDatabase } from "../../database/comment/LikeDislikeCommentDatabase";
 import { PostDatabase } from "../../database/post/PostDatabase";
 import { CreateCommentInputDTO, CreateCommentOutputDTO } from "../../dtos/comment/createComment.dto";
 import { DeleteCommentInputDTO, DeleteCommentOutputDTO } from "../../dtos/comment/deleteComment.dto";
 import { EditCommentInputDTO, EditCommentOutputDTO } from "../../dtos/comment/editComment.dto";
 import { GetCommentsInputDTO, GetCommentsOutputDTO } from "../../dtos/comment/getComments.dto";
+import { LikeDislikeCommentInputDTO } from "../../dtos/comment/likeDislikeComment.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
-import { Comment, CommentModel, CommentModelDB } from "../../models/comments/Comment";
+import { Comment, CommentLikeDislikeDBModel, CommentModel, CommentModelDB } from "../../models/comments/Comment";
 import { PostModelDB } from "../../models/post/Post";
 import { TokenPayload, USER_ROLES } from "../../models/user/User";
 import { IdGenerator } from "../../services/IdGenerator";
@@ -17,7 +19,8 @@ export class CommentBusiness {
         private commentDatabase: CommentDatabase,
         private tokenManager: TokenManager,
         private idGenerator: IdGenerator,
-        private postDatabase: PostDatabase
+        private postDatabase: PostDatabase,
+        private likeDislikeCommentDatabase: LikeDislikeCommentDatabase
     ){}
 
     public createComment = async (input: CreateCommentInputDTO): Promise<CreateCommentOutputDTO> => {
@@ -125,5 +128,64 @@ export class CommentBusiness {
         })
 
         return comments
+    }
+
+    public likeDislikeComment = async (input: LikeDislikeCommentInputDTO): Promise<void> => {
+        const { id: commentId, token, like } = input
+        //convertendo o like boolean para number
+        const likeDB: number = Number(like)
+        //verificando se token é válido
+        const payload: TokenPayload | null = this.tokenManager.getPayload(token)
+        if (payload === null) throw new BadRequestError("invalid token");
+        //verificando se comentário existe no DB
+        const commentDB: CommentModelDB | undefined = await this.commentDatabase.findCommentById(commentId)
+        if (!commentDB) throw new NotFoundError("Comment Id not found");
+        //criando like_dislike_model
+        const userId = payload.id
+        const likeDislikeComment: CommentLikeDislikeDBModel = {
+            user_id: userId,
+            comment_id: commentId,
+            like: likeDB
+        }
+
+        //verificando se já existe este registro de like_dislike_comment 
+        const likeDislikeDB: CommentLikeDislikeDBModel | undefined = await this.likeDislikeCommentDatabase.findLikeDislike(userId, commentId)
+        
+        if (!likeDislikeDB) {
+            //se não constar registro vamos criar    
+            await this.likeDislikeCommentDatabase.insertLikeDislike(likeDislikeComment)
+            //verificar se recebemos um like ou dislike para poder incrementar a tabela comments
+            likeDB === 1 ?
+                await this.commentDatabase.incrementLikeComment(commentId)
+                : 
+                await this.commentDatabase.incrementDislikeComment(commentId)
+        
+        } else {
+            //se constar o registro vamos fazer o update
+            //1) verificamos se o like já registrado é diferente do enviado agora
+            if (likeDB !== likeDislikeDB.like) {
+                //se diferente atualizamos o DB com o like enviado
+                await this.likeDislikeCommentDatabase.updateLikeDislike(likeDislikeComment)
+                //e fazemos a reversão do like e dislike na tabela comments
+                //se likeDB for 1 vai incrementar like e decrementar dislike e vice-versa(na tabela comments)
+                likeDB === 1 ?
+                await this.commentDatabase.reverseLikeUpComment(commentId)
+                : 
+                await this.commentDatabase.reverseDislikeUpComment(commentId)
+
+            } else {
+                //se for igual deletamos o registro e decrementamos o like ou dislike na tabela comments
+                await this.likeDislikeCommentDatabase.deleteLikeDislike(userId, commentId)
+
+                likeDB === 1 ?
+                    await this.commentDatabase.decrementLikeComment(commentId)
+                    :
+                    await this.commentDatabase.decrementDislikeComment(commentId)
+            }
+        }
+
+        
+
+        
     }
 }

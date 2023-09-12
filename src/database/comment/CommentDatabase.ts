@@ -39,4 +39,42 @@ export class CommentDatabase extends BaseDatabase {
         
         return commentsDB
     }
+
+    public incrementLikeComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .increment("likes")
+            .where({ commentId })
+    }
+
+    public decrementLikeComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .decrement("likes")
+            .where({ commentId })
+    }
+
+    public incrementDislikeComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .increment("dislikes")
+            .where({ commentId })
+    }
+
+    public decrementDislikeComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .decrement("dislikes")
+            .where({ commentId })
+    }
+
+    public reverseDislikeUpComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .increment("dislikes")
+            .decrement("likes")
+            .where({ commentId })
+    }
+
+    public reverseLikeUpComment = async (commentId: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .increment("likes")
+            .decrement("dislikes")
+            .where({ commentId })
+    }
 }

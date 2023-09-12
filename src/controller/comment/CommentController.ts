@@ -6,6 +6,7 @@ import { CreateCommentSchema } from "../../dtos/comment/createComment.dto";
 import { EditCommentOutputDTO, EditCommentSchema } from "../../dtos/comment/editComment.dto";
 import { DeleteCommentOutputDTO, DeleteCommentSchema } from "../../dtos/comment/deleteComment.dto";
 import { GetCommentsOutputDTO, GetCommentsSchema } from "../../dtos/comment/getComments.dto";
+import { LikeDislikeCommentSchema } from "../../dtos/comment/likeDislikeComment.dto";
 
 
 
@@ -106,10 +107,13 @@ export class CommentController {
     public likeDislikeComment = async (req: Request, res: Response): Promise<void> => {
         try {
             
-            
-
-
-
+            const input = LikeDislikeCommentSchema.parse({
+                id: req.params.id,
+                token: req.headers.authorization,
+                like: req.body.like
+            })
+            await this.commentBusiness.likeDislikeComment(input)
+            res.status(200).send()
         } catch (error: unknown) {
             console.log(error)
 
