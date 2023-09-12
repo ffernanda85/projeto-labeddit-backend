@@ -5,9 +5,6 @@ import { TokenManager } from '../../services/TokenManager'
 import { PostDatabase } from '../../database/post/PostDatabase'
 import { IdGenerator } from '../../services/IdGenerator'
 import { LikeDislikeDatabase } from '../../database/post/LikeDislikeDatabase'
-import { CommentController } from '../../controller/comment/CommentController'
-import { CommentBusiness } from '../../business/comment/CommentBusiness'
-import { CommentDatabase } from '../../database/comment/CommentDatabase'
 
 export const postRouter = express.Router()
 
@@ -17,15 +14,6 @@ const postController = new PostController(
         new PostDatabase(),
         new IdGenerator(),
         new LikeDislikeDatabase()
-    )
-)
-
-const commentController = new CommentController(
-    new CommentBusiness(
-        new CommentDatabase(),
-        new TokenManager(),
-        new IdGenerator(),
-        new PostDatabase()
     )
 )
 
@@ -41,4 +29,3 @@ postRouter.put("/:id", postController.editPost)
 postRouter.delete("/:id", postController.deletePost)
 /*=================== Like and Dislike Post ===============*/
 postRouter.put("/:id/like", postController.likeDislike)
-

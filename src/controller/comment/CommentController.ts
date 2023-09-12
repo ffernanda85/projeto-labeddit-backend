@@ -7,6 +7,8 @@ import { EditCommentOutputDTO, EditCommentSchema } from "../../dtos/comment/edit
 import { DeleteCommentOutputDTO, DeleteCommentSchema } from "../../dtos/comment/deleteComment.dto";
 import { GetCommentsOutputDTO, GetCommentsSchema } from "../../dtos/comment/getComments.dto";
 
+
+
 export class CommentController {
     constructor(
         private commentBusiness: CommentBusiness
@@ -88,6 +90,26 @@ export class CommentController {
             })
             const output: GetCommentsOutputDTO = await this.commentBusiness.getComments(input)
             res.status(200).send(output)
+        } catch (error: unknown) {
+            console.log(error)
+
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("unexpected error")
+            }
+        }
+    }
+
+    public likeDislikeComment = async (req: Request, res: Response): Promise<void> => {
+        try {
+            
+            
+
+
+
         } catch (error: unknown) {
             console.log(error)
 

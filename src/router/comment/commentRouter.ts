@@ -27,3 +27,5 @@ commentRouter.put("/:id", commentController.editComment)
 commentRouter.delete("/:id", commentController.deleteComment)
 /*=================== Get Comment =========================*/
 commentRouter.get("/:id", commentController.getComments)
+/*=================== Like and Dislike Comment =========================*/
+commentRouter.put("/:id/like", commentController.likeDislikeComment)
