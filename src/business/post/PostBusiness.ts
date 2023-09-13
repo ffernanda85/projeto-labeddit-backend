@@ -1,7 +1,7 @@
 import { LikeDislikePostDatabase } from "../../database/post/LikeDislikePostDatabase";
 import { PostDatabase } from "../../database/post/PostDatabase";
 import { CreatePostInputDTO, CreatePostOutputDTO } from "../../dtos/post/createPost.dto";
-import { DeletePostInputDTO } from "../../dtos/post/deletePost.dto";
+import { DeletePostInputDTO, DeletePostOutputDTO } from "../../dtos/post/deletePost.dto";
 import { EditPostInputDTO, EditPostOutputDTO } from "../../dtos/post/editPost.dto";
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dtos/post/getPost.dto";
 import { LikeDislikePostInputDTO } from "../../dtos/post/likeDislikePost.dto";
@@ -117,18 +117,18 @@ export class PostBusiness {
         return output
     }
 
-    public deletePost = async (input: DeletePostInputDTO): Promise<void> => {
+    public deletePost = async (input: DeletePostInputDTO): Promise<DeletePostOutputDTO> => {
         const { token, id } = input
 
         /* Verificando de o token é válido */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) {
-            throw new BadRequestError("Invalid TOKEN");
+            throw new BadRequestError("invalid token");
         }
         /* verifcando no DB se o ID informado confere com alguma postagem */
         const postDB: PostModelDB = await this.postDatabase.getPostById(id)
         if (!postDB) {
-            throw new NotFoundError("ID not found");
+            throw new NotFoundError("id not found");
         }
         /* verificando se o ID do criador da postagem bate com o do TOKEN informado ou se ele tem uma conta ADMIN*/
         if (postDB.creator_id !== payload.id && payload.role !== USER_ROLES.ADMIN) {
@@ -136,6 +136,10 @@ export class PostBusiness {
         }
         /* enviando o id da postagem como argumento para fazer a deleção no DB */
         await this.postDatabase.deletePostById(id)
+        const output: DeletePostOutputDTO = {
+            message: "post deleted"
+        }
+        return output
     }
 
     public likeDislike = async (input: LikeDislikePostInputDTO) => {
