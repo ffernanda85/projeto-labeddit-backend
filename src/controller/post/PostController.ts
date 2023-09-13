@@ -114,9 +114,9 @@ export class PostController {
                 like: req.body.like
             })
 
-            await this.postBusiness.likeDislike(input)
+            const output = await this.postBusiness.likeDislike(input)
 
-            res.status(200).send()
+            res.status(200).send(output)
             
         } catch (error: unknown) {
             console.log(error)

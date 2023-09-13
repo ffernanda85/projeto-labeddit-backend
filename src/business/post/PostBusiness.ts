@@ -4,7 +4,7 @@ import { CreatePostInputDTO, CreatePostOutputDTO } from "../../dtos/post/createP
 import { DeletePostInputDTO, DeletePostOutputDTO } from "../../dtos/post/deletePost.dto";
 import { EditPostInputDTO, EditPostOutputDTO } from "../../dtos/post/editPost.dto";
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dtos/post/getPost.dto";
-import { LikeDislikePostInputDTO } from "../../dtos/post/likeDislikePost.dto";
+import { LikeDislikePostInputDTO, LikeDislikePostOutputDTO } from "../../dtos/post/likeDislikePost.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
 import { PostLikeDislikeDBModel, Post, PostModelDB } from "../../models/post/Post";
@@ -142,19 +142,19 @@ export class PostBusiness {
         return output
     }
 
-    public likeDislike = async (input: LikeDislikePostInputDTO) => {
+    public likeDislike = async (input: LikeDislikePostInputDTO): Promise<LikeDislikePostOutputDTO> => {
         const { id: postId, token, like } = input
         
         /* Verificando se o token é válido */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) {
-            throw new BadRequestError("invalid TOKEN");
+            throw new BadRequestError("invalid token");
         }
         
         /* Verificando se o post com o ID informado existe no DB */
         const postDB: PostModelDB | undefined = await this.postDatabase.getPostById(postId)
         if (!postDB) {
-            throw new NotFoundError("ID not found");
+            throw new NotFoundError("id not found");
         }
 
         /* Verificando se o usuário é o criador da postagem */
@@ -207,5 +207,9 @@ export class PostBusiness {
                     await this.postDatabase.reverseDislikeUp(postId)
             }
         }
+        const output: LikeDislikePostOutputDTO = {
+            message: "success"
+        }
+        return output
     }
 }
