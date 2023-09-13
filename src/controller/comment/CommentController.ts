@@ -1,32 +1,34 @@
 import { Request, Response } from "express";
+import { CommentBusiness } from "../../business/comment/CommentBusiness";
 import { ZodError } from "zod";
 import { BaseError } from "../../errors/BaseError";
-import { CreatePostSchema } from "../../dtos/post/createPost.dto";
-import { PostBusiness } from "../../business/post/PostBusiness";
-import { GetPostSchema } from "../../dtos/post/getPost.dto";
-import { EditPostSchema } from "../../dtos/post/editPost.dto";
-import { DeletePostSchema } from "../../dtos/post/deletePost.dto";
-import { LikeDislikePostSchema } from "../../dtos/post/likeDislikePost.dto";
+import { CreateCommentSchema } from "../../dtos/comment/createComment.dto";
+import { EditCommentOutputDTO, EditCommentSchema } from "../../dtos/comment/editComment.dto";
+import { DeleteCommentOutputDTO, DeleteCommentSchema } from "../../dtos/comment/deleteComment.dto";
+import { GetCommentsOutputDTO, GetCommentsSchema } from "../../dtos/comment/getComments.dto";
+import { LikeDislikeCommentSchema } from "../../dtos/comment/likeDislikeComment.dto";
 
 
-export class PostController {
 
+export class CommentController {
     constructor(
-        private postBusiness: PostBusiness
+        private commentBusiness: CommentBusiness
     ) { }
-
-    public createPost = async (req: Request, res: Response): Promise<void> => {
+    
+    public createComment = async (req: Request, res: Response): Promise<void> => {
         try {
-
-            const input = CreatePostSchema.parse({
+            const input = CreateCommentSchema.parse({
+                post_id: req.params.id,
                 token: req.headers.authorization,
                 content: req.body.content
             })
 
-            await this.postBusiness.createPost(input)
+            const output = await this.commentBusiness.createComment(input)
 
-            res.status(201).send()
-        } catch (error: unknown) {
+            res.status(201).send(output)
+        } catch (error : unknown) {
+            console.log(error)
+
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
             } else if (error instanceof BaseError) {
@@ -37,41 +39,19 @@ export class PostController {
         }
     }
 
-    public getPosts = async (req: Request, res: Response): Promise<void> => {
+    public editComment = async (req: Request, res: Response): Promise<void> => {
         try {
-
-            const input = GetPostSchema.parse({
-                token: req.headers.authorization
-            })
-
-            const output = await this.postBusiness.getPosts(input)
-
-            res.status(200).send(output)
-        } catch (error: unknown) {
-            if (error instanceof ZodError) {
-                res.status(400).send(error.issues)
-            } else if (error instanceof BaseError) {
-                res.status(error.statusCode).send(error.message)
-            } else {
-                res.status(500).send("unexpected error")
-            }
-        }
-    }
-
-    public editPost = async (req: Request, res: Response): Promise<void> => {
-        try {
-
-            const input = EditPostSchema.parse({
+            
+            const input = EditCommentSchema.parse({
                 id: req.params.id,
                 token: req.headers.authorization,
                 content: req.body.content
             })
-
-            await this.postBusiness.editPost(input)
-
-            res.status(200).send()
-
+            const output: EditCommentOutputDTO = await this.commentBusiness.editComment(input)
+            res.status(200).send(output)
         } catch (error: unknown) {
+            console.log(error)
+
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
             } else if (error instanceof BaseError) {
@@ -82,21 +62,19 @@ export class PostController {
         }
     }
 
-    public deletePost = async (req: Request, res: Response): Promise<void> => {
+    public deleteComment = async (req: Request, res: Response): Promise<void> => {
         try {
-
-            const input = DeletePostSchema.parse({
-                token: req.headers.authorization,
-                id: req.params.id
+            const input = DeleteCommentSchema.parse({
+                id: req.params.id,
+                token: req.headers.authorization
             })
-
-            await this.postBusiness.deletePost(input)
-
-            res.status(200).send()
+            const output: DeleteCommentOutputDTO = await this.commentBusiness.deleteComment(input)
+            res.status(200).send(output)            
         } catch (error: unknown) {
+            console.log(error)
+
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
-
             } else if (error instanceof BaseError) {
                 res.status(error.statusCode).send(error.message)
             } else {
@@ -105,21 +83,40 @@ export class PostController {
         }
     }
 
-    public likeDislike = async (req: Request, res: Response): Promise<void> => {
+    public getComments = async (req: Request, res: Response): Promise<void> => {
         try {
+            const input = GetCommentsSchema.parse({
+                postId: req.params.id,
+                token: req.headers.authorization
+            })
+            const output: GetCommentsOutputDTO = await this.commentBusiness.getComments(input)
+            res.status(200).send(output)
+        } catch (error: unknown) {
+            console.log(error)
 
-            const input = LikeDislikePostSchema.parse({
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("unexpected error")
+            }
+        }
+    }
+
+    public likeDislikeComment = async (req: Request, res: Response): Promise<void> => {
+        try {
+            
+            const input = LikeDislikeCommentSchema.parse({
                 id: req.params.id,
                 token: req.headers.authorization,
                 like: req.body.like
             })
-
-            await this.postBusiness.likeDislike(input)
-
+            await this.commentBusiness.likeDislikeComment(input)
             res.status(200).send()
-            
         } catch (error: unknown) {
             console.log(error)
+
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
             } else if (error instanceof BaseError) {

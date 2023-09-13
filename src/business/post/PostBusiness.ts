@@ -7,7 +7,7 @@ import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dtos/post/getPost.dto
 import { LikeDislikePostInputDTO } from "../../dtos/post/likeDislikePost.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
-import { LikeDislikeDBModel, Post, PostModelDB } from "../../models/post/Post";
+import { PostLikeDislikeDBModel, Post, PostModelDB } from "../../models/post/Post";
 import { TokenPayload, USER_ROLES } from "../../models/user/User";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenManager } from "../../services/TokenManager";
@@ -41,6 +41,7 @@ export class PostBusiness {
             content,
             0,
             0,
+            0,
             new Date().toISOString(),
             new Date().toISOString()
         )
@@ -67,6 +68,7 @@ export class PostBusiness {
                 post.content,
                 post.likes,
                 post.dislikes,
+                post.comments,
                 post.created_at,
                 post.updated_at
             )
@@ -101,13 +103,12 @@ export class PostBusiness {
             content,
             postDB.likes,
             postDB.dislikes,
+            postDB.comments,
             postDB.created_at,
             postDB.updated_at
         )
         const postToUpdateDB: PostModelDB = postToUpdate.postToDBModel()
-
         await this.postDatabase.updatePost(postToUpdateDB)
-
     }
 
     public deletePost = async (input: DeletePostInputDTO): Promise<void> => {
@@ -133,16 +134,19 @@ export class PostBusiness {
 
     public likeDislike = async (input: LikeDislikePostInputDTO) => {
         const { id: postId, token, like } = input
+        
         /* Verificando se o token é válido */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) {
             throw new BadRequestError("invalid TOKEN");
         }
+        
         /* Verificando se o post com o ID informado existe no DB */
         const postDB: PostModelDB | undefined = await this.postDatabase.getPostById(postId)
         if (!postDB) {
             throw new NotFoundError("ID not found");
         }
+
         /* Verificando se o usuário é o criador da postagem */
         const { creator_id } = postDB
         const { id: user_id } = payload
@@ -154,14 +158,14 @@ export class PostBusiness {
         const likePost: number = Number(like)
 
         /* Criando o obj de likes_dislikes */
-        const like_dislike: LikeDislikeDBModel = {
+        const like_dislike: PostLikeDislikeDBModel = {
             user_id,
             post_id: postId,
             like: likePost
         }
 
         /* Verificar se existe registro em likes_dislikes (id_post + id_user) */
-        const likesDislikesExists: LikeDislikeDBModel | undefined = await this.likeDislikeDatabase.findLikesDislikes(postId, payload.id)
+        const likesDislikesExists: PostLikeDislikeDBModel | undefined = await this.likeDislikeDatabase.findLikesDislikes(postId, payload.id)
 
         /* Se não houver registro em likes_dislikes inserir na tabela */
         if (!likesDislikesExists) {
@@ -179,104 +183,19 @@ export class PostBusiness {
                 await this.likeDislikeDatabase.deleteLikesDislikes(user_id, postId)
 
                 likePost === 1 ?
-                    await this.postDatabase.decrementLike(postId) : await this.postDatabase.decrementDislike(postId)
+                    await this.postDatabase.decrementLike(postId)
+                    :
+                    await this.postDatabase.decrementDislike(postId)
+                
             } else {
                 //se o like enviado não for igual ao existente no registro, vamos precisar editar nosso registro no DB
                 await this.likeDislikeDatabase.updateLikesDislikes(like_dislike)
 
                 likePost === 1 ?
-                    await this.postDatabase.reverseLikeUp(postId) :
+                    await this.postDatabase.reverseLikeUp(postId)
+                    :
                     await this.postDatabase.reverseDislikeUp(postId)
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /* if (!likesDislikesExists) {
-            //1) criar um novo registro de likes_dislikes na tabela
-            //1.1 - verifica se like é true ou false e chama os métodos de incrementar/decrementar o likes/dislikes de posts
-            if (like) {
-                likePost = 1
-                    
-                if (postDB.dislikes < 1) {
-                    await this.postDatabase.incrementLike(postDB.id)
-                } else {
-                    await this.postDatabase.incrementLike(postDB.id)
-                    await this.postDatabase.decrementDislike(postDB.id)
-                }
-
-            } else {
-                likePost = 0
-
-                if (postDB.likes < 1) { postLikeDislike.postIncrementDislike() }
-
-                postLikeDislike.postDecreaseLike()
-                postLikeDislike.postIncrementDislike()
-            }
-            
-            const likeDislike = postLikeDislike.createLikeDislike(user_id, likePost)
-
-            await this.likeDislikeDatabase.createLikesDislikes(likeDislike)
-        }
-
-        const updatedPostDB = postLikeDislike.postToDBModel()
-        await this.postDatabase.updatePost(updatedPostDB) */
-
-
-
-
-
-
-        /* let likeDB: number
-
-        if (likesDislikesExists) {
-            
-            if (like) {
-                
-            }
-
-            likeDB = likesDislikesExists.like === 0 ? 1 : 0
-            likeDB === 1 ? editPostLikeDislike.postIncrementLike()
-            
-        } else {
-
-            likeDB = like ? 1 : 0
-            
-        } */
-
-
-        /* Atribuindo o valor de like a variável para transformar ela em number e poder aderir ao DB */
-        /*  let likeDB: number = 0
-         let dislikeDB: number = 0
-         like ? likeDB = 1 : dislikeDB = 1
- 
-         if (like) {
-             
-         } */
-        /*  const editPostLikeDislikeDB: PostModelDB = editPostLikeDislike.postToDBModel()
-         await this.postDatabase.updatePost(editPostLikeDislikeDB) */
     }
 }

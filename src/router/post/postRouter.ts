@@ -17,8 +17,15 @@ const postController = new PostController(
     )
 )
 
+/************* Endpoints Posts **************/
+
+/*=================== Create Post =========================*/
 postRouter.post("/", postController.createPost)
+/*=================== Get Post ============================*/
 postRouter.get("/", postController.getPosts)
+/*=================== Edit Post ===========================*/
 postRouter.put("/:id", postController.editPost)
+/*=================== Delete Post =========================*/
 postRouter.delete("/:id", postController.deletePost)
+/*=================== Like and Dislike Post ===============*/
 postRouter.put("/:id/like", postController.likeDislike)

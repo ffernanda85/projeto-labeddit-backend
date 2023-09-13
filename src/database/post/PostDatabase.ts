@@ -70,6 +70,18 @@ export class PostDatabase extends BaseDatabase {
             .decrement('dislikes')
     }
 
+    public incrementComments = async (id: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .where({ id })
+            .increment('comments')
+    }
+
+    public decrementComments = async (id: string): Promise<void> => {
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .where({ id })
+            .decrement('comments')
+    }
+
     public reverseLikeUp = async (postId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment('likes')
