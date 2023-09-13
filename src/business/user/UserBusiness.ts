@@ -73,6 +73,8 @@ export class UserBusiness {
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) throw new BadRequestError("invalid token");
 
+        if (payload.role !== USER_ROLES.ADMIN) throw new BadRequestError("not authorized");
+                
         const usersDB: UserDBModel[] = await this.userDatabase.findUsers(q)
 
         const users: UserModel[] = usersDB.map(user => {
