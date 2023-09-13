@@ -6,6 +6,10 @@ export interface EditPostInputDTO {
     content: string
 }
 
+export interface EditPostOutputDTO {
+    message: string
+}
+
 export const EditPostSchema = z.object({
     id: z.string().min(1),
     token: z.string().min(1),

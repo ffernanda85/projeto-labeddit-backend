@@ -67,9 +67,9 @@ export class PostController {
                 content: req.body.content
             })
 
-            await this.postBusiness.editPost(input)
+            const output = await this.postBusiness.editPost(input)
 
-            res.status(200).send()
+            res.status(200).send(output)
 
         } catch (error: unknown) {
             if (error instanceof ZodError) {
