@@ -132,14 +132,18 @@ export class CommentBusiness {
 
     public likeDislikeComment = async (input: LikeDislikeCommentInputDTO): Promise<void> => {
         const { id: commentId, token, like } = input
-        //convertendo o like boolean para number
-        const likeDB: number = Number(like)
+        
         //verificando se token é válido
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) throw new BadRequestError("invalid token");
+
         //verificando se comentário existe no DB
         const commentDB: CommentModelDB | undefined = await this.commentDatabase.findCommentById(commentId)
         if (!commentDB) throw new NotFoundError("Comment Id not found");
+
+        //convertendo o like boolean para number
+        const likeDB: number = Number(like)
+
         //criando like_dislike_model
         const userId = payload.id
         const likeDislikeComment: CommentLikeDislikeDBModel = {
@@ -183,9 +187,5 @@ export class CommentBusiness {
                     await this.commentDatabase.decrementDislikeComment(commentId)
             }
         }
-
-        
-
-        
     }
 }

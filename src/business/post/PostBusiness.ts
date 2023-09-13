@@ -134,16 +134,19 @@ export class PostBusiness {
 
     public likeDislike = async (input: LikeDislikePostInputDTO) => {
         const { id: postId, token, like } = input
+        
         /* Verificando se o token é válido */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) {
             throw new BadRequestError("invalid TOKEN");
         }
+        
         /* Verificando se o post com o ID informado existe no DB */
         const postDB: PostModelDB | undefined = await this.postDatabase.getPostById(postId)
         if (!postDB) {
             throw new NotFoundError("ID not found");
         }
+
         /* Verificando se o usuário é o criador da postagem */
         const { creator_id } = postDB
         const { id: user_id } = payload
@@ -180,13 +183,17 @@ export class PostBusiness {
                 await this.likeDislikeDatabase.deleteLikesDislikes(user_id, postId)
 
                 likePost === 1 ?
-                    await this.postDatabase.decrementLike(postId) : await this.postDatabase.decrementDislike(postId)
+                    await this.postDatabase.decrementLike(postId)
+                    :
+                    await this.postDatabase.decrementDislike(postId)
+                
             } else {
                 //se o like enviado não for igual ao existente no registro, vamos precisar editar nosso registro no DB
                 await this.likeDislikeDatabase.updateLikesDislikes(like_dislike)
 
                 likePost === 1 ?
-                    await this.postDatabase.reverseLikeUp(postId) :
+                    await this.postDatabase.reverseLikeUp(postId)
+                    :
                     await this.postDatabase.reverseDislikeUp(postId)
             }
         }

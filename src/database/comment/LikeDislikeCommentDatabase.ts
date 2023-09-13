@@ -12,11 +12,15 @@ export class LikeDislikeCommentDatabase extends BaseDatabase {
     }
 
     public insertLikeDislike = async (input: CommentLikeDislikeDBModel): Promise<void> => {
-        await BaseDatabase.connection(this.TABLE_NAME).insert(input)
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .insert(input)
     }
 
     public updateLikeDislike = async ({ user_id, comment_id, like }: CommentLikeDislikeDBModel): Promise<void> => {
-        await BaseDatabase.connection(this.TABLE_NAME).update({ like }).where({ user_id }).andWhere({ comment_id })
+        await BaseDatabase.connection(this.TABLE_NAME)
+            .update({ like })
+            .where({ user_id })
+            .andWhere({ comment_id })
     }
 
     public deleteLikeDislike = async (user_id: string, comment_id: string): Promise<void> => {

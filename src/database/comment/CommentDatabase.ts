@@ -2,7 +2,7 @@ import { CommentModel, CommentModelDB } from "../../models/comments/Comment"
 import { BaseDatabase } from "../BaseDatabase"
 
 export class CommentDatabase extends BaseDatabase {
-    TABLE_NAME = 'comments'
+    TABLE_NAME = "comments"
 
     public insertCommentDB = async (newComment: CommentModelDB): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME).insert(newComment)
@@ -43,38 +43,38 @@ export class CommentDatabase extends BaseDatabase {
     public incrementLikeComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment("likes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 
     public decrementLikeComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .decrement("likes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 
     public incrementDislikeComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment("dislikes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 
     public decrementDislikeComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .decrement("dislikes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 
     public reverseDislikeUpComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment("dislikes")
             .decrement("likes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 
     public reverseLikeUpComment = async (commentId: string): Promise<void> => {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment("likes")
             .decrement("dislikes")
-            .where({ commentId })
+            .where({ id : commentId })
     }
 }
