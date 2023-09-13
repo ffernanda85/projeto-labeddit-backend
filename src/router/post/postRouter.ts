@@ -4,7 +4,7 @@ import { PostBusiness } from '../../business/post/PostBusiness'
 import { TokenManager } from '../../services/TokenManager'
 import { PostDatabase } from '../../database/post/PostDatabase'
 import { IdGenerator } from '../../services/IdGenerator'
-import { LikeDislikeDatabase } from '../../database/post/LikeDislikeDatabase'
+import { LikeDislikeDatabase } from '../../database/post/LikeDislikePostDatabase'
 
 export const postRouter = express.Router()
 

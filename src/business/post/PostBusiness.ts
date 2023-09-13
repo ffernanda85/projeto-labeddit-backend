@@ -1,4 +1,4 @@
-import { LikeDislikeDatabase } from "../../database/post/LikeDislikeDatabase";
+import { LikeDislikeDatabase } from "../../database/post/LikeDislikePostDatabase";
 import { PostDatabase } from "../../database/post/PostDatabase";
 import { CreatePostInputDTO } from "../../dtos/post/createPost.dto";
 import { DeletePostInputDTO } from "../../dtos/post/deletePost.dto";
