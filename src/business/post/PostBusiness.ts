@@ -1,6 +1,6 @@
-import { LikeDislikeDatabase } from "../../database/post/LikeDislikePostDatabase";
+import { LikeDislikePostDatabase } from "../../database/post/LikeDislikePostDatabase";
 import { PostDatabase } from "../../database/post/PostDatabase";
-import { CreatePostInputDTO } from "../../dtos/post/createPost.dto";
+import { CreatePostInputDTO, CreatePostOutputDTO } from "../../dtos/post/createPost.dto";
 import { DeletePostInputDTO } from "../../dtos/post/deletePost.dto";
 import { EditPostInputDTO } from "../../dtos/post/editPost.dto";
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dtos/post/getPost.dto";
@@ -18,17 +18,16 @@ export class PostBusiness {
         private tokenManager: TokenManager,
         private postDatabase: PostDatabase,
         private idGenerator: IdGenerator,
-        private likeDislikeDatabase: LikeDislikeDatabase
+        private likeDislikePostDatabase: LikeDislikePostDatabase
     ) { }
 
-    public createPost = async (input: CreatePostInputDTO): Promise<void> => {
+    public createPost = async (input: CreatePostInputDTO): Promise<CreatePostOutputDTO> => {
         const { token, content } = input
 
         /* verificando token */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
-
         if (payload === null) {
-            throw new BadRequestError("'TOKEN'invalid");
+            throw new BadRequestError("invalid token");
         }
 
         /* Gerando id aleatório */
@@ -46,8 +45,11 @@ export class PostBusiness {
             new Date().toISOString()
         )
         const newPostDB: PostModelDB = newPost.postToDBModel()
-
         await this.postDatabase.insertPostDB(newPostDB)
+        const output: CreatePostOutputDTO = {
+            message: "post created"
+        }
+        return output
     }
 
     public getPosts = async (input: GetPostsInputDTO): Promise<GetPostsOutputDTO> => {
@@ -165,11 +167,11 @@ export class PostBusiness {
         }
 
         /* Verificar se existe registro em likes_dislikes (id_post + id_user) */
-        const likesDislikesExists: PostLikeDislikeDBModel | undefined = await this.likeDislikeDatabase.findLikesDislikes(postId, payload.id)
+        const likesDislikesExists: PostLikeDislikeDBModel | undefined = await this.likeDislikePostDatabase.findLikesDislikes(postId, payload.id)
 
         /* Se não houver registro em likes_dislikes inserir na tabela */
         if (!likesDislikesExists) {
-            await this.likeDislikeDatabase.createLikesDislikes(like_dislike)
+            await this.likeDislikePostDatabase.createLikesDislikes(like_dislike)
             /* se like for 1 incrementamos o likes, senão incrementamos o dislikes na posts */
             likePost === 1 ?
                 await this.postDatabase.incrementLike(postId) :
@@ -180,7 +182,7 @@ export class PostBusiness {
             //1) verificamos se o like enviado é o mesmo existente
             if (likesDislikesExists.like === likePost) {
                 //nesse caso deletamos o registro existente
-                await this.likeDislikeDatabase.deleteLikesDislikes(user_id, postId)
+                await this.likeDislikePostDatabase.deleteLikesDislikes(user_id, postId)
 
                 likePost === 1 ?
                     await this.postDatabase.decrementLike(postId)
@@ -189,7 +191,7 @@ export class PostBusiness {
                 
             } else {
                 //se o like enviado não for igual ao existente no registro, vamos precisar editar nosso registro no DB
-                await this.likeDislikeDatabase.updateLikesDislikes(like_dislike)
+                await this.likeDislikePostDatabase.updateLikesDislikes(like_dislike)
 
                 likePost === 1 ?
                     await this.postDatabase.reverseLikeUp(postId)

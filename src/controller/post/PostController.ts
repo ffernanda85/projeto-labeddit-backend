@@ -23,9 +23,9 @@ export class PostController {
                 content: req.body.content
             })
 
-            await this.postBusiness.createPost(input)
+            const output = await this.postBusiness.createPost(input)
 
-            res.status(201).send()
+            res.status(201).send(output)
         } catch (error: unknown) {
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
