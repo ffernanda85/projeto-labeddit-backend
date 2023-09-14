@@ -14,7 +14,7 @@ const postsMock: PostModelDB[] = [
     },
     {
         id: "post02",
-        creator_id: "id-mock-izabela",
+        creator_id: "id-mock-flavia",
         content: "string2",
         likes: 0,
         dislikes: 0,

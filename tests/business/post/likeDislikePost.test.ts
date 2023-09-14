@@ -16,21 +16,40 @@ describe("Testes deletePost", () => {
         new LikeDislikePostDatabaseMock()
     )
 
-    test("deve retornar a mensagem 'success'", async () => {
+    test("testando like e dislike existente, deve retornar a mensagem 'success'", async () => {
         const input = LikeDislikePostSchema.parse({
             id: "post02",
-            token: "token-mock-flavia",
+            token: "token-mock-izabela",
             like: true
         })
-        const output = await postBusiness.likeDislike(input)
+        //testando like
+        let output = await postBusiness.likeDislike(input)
+        expect(output).toEqual({ message: "success" })
+        //testando dislike
+        input.like = false
+        output = await postBusiness.likeDislike(input)
         expect(output).toEqual({ message: "success" })
     })
 
+    test("testando like e dislike não existente, deve retornar a mensagem 'success'", async () => {
+        const input = LikeDislikePostSchema.parse({
+            id: "post01",
+            token: "token-mock-izabela",
+            like: true
+        })
+        //testando like
+        let output = await postBusiness.likeDislike(input)
+        expect(output).toEqual({ message: "success" })
+        //testando dislike
+        input.like = false
+        output = await postBusiness.likeDislike(input)
+        expect(output).toEqual({ message: "success" })
+    })
+   
     test("deve disparar erro e retornar mensagem 'invalid token'", async () => {
         expect.assertions(3)
 
         try {
-            
             const input = LikeDislikePostSchema.parse({
                 id: "post01",
                 token: "token-mock-flaviaa",
@@ -83,6 +102,4 @@ describe("Testes deletePost", () => {
             }
         }
     })
-
-    
 })
