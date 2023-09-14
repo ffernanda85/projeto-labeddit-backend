@@ -8,8 +8,7 @@ export interface CreateCommentInputDTO {
 }
 
 export interface CreateCommentOutputDTO {
-    message: string,
-    comment: CommentModelOutput
+    message: string
 }
 
 export const CreateCommentSchema = z.object({

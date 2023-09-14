@@ -4,7 +4,7 @@ import { CommentModelDB, CommentModel } from "../../../src/models/comments/Comme
 const commentsMock: CommentModelDB[] = [
     {
         id: "c001",
-        post_id: "p001",
+        post_id: "post01",
         creator_id: "id-mock-flavia",
         content: "string",
         likes: 0,
@@ -14,7 +14,7 @@ const commentsMock: CommentModelDB[] = [
     },
     {
         id: "c002",
-        post_id: "p001",
+        post_id: "post01",
         creator_id: "id-mock-flavia",
         content: "string",
         likes: 0,

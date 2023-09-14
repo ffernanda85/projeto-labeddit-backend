@@ -50,8 +50,7 @@ export class CommentBusiness {
         await  this.postDatabase.incrementComments(newComment.getPostId())
 
         const output: CreateCommentOutputDTO = {
-            message: "comment created",
-            comment: newComment.commentToBusinessModel(payload.name)
+            message: "comment created"
         }
         return output
     }
