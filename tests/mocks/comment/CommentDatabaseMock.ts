@@ -1,5 +1,6 @@
 import { BaseDatabase } from "../../../src/database/BaseDatabase"
 import { CommentModelDB, CommentModel } from "../../../src/models/comments/Comment"
+import { usersMock } from "../user/UserDatabaseMock"
 
 const commentsMock: CommentModelDB[] = [
     {
@@ -14,7 +15,7 @@ const commentsMock: CommentModelDB[] = [
     },
     {
         id: "c002",
-        post_id: "post01",
+        post_id: "post02",
         creator_id: "id-mock-flavia",
         content: "string",
         likes: 0,
@@ -49,8 +50,9 @@ export class CommentDatabaseMock extends BaseDatabase {
 
     public getCommentsByPostId = async (postId: string): Promise<CommentModel[]> => {
         const filterComments = commentsMock.filter(comment => comment.post_id === postId)
-
+        
         return filterComments.map(comment => {
+            const filterUsers = usersMock.find(user => user.id === comment.creator_id)
             return {
                 id: comment.id,
                 post_id: comment.post_id,
@@ -60,7 +62,7 @@ export class CommentDatabaseMock extends BaseDatabase {
                 dislikes: comment.dislikes,
                 created_at: comment.created_at,
                 updated_at: comment.updated_at,
-                creatorName: "name"
+                creatorName: filterUsers?.name as string
             }
         })
     }
