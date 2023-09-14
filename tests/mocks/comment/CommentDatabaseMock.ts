@@ -21,6 +21,16 @@ const commentsMock: CommentModelDB[] = [
         dislikes: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
+    },
+    {
+        id: "c003",
+        post_id: "post01",
+        creator_id: "id-mock-izabela",
+        content: "string",
+        likes: 0,
+        dislikes: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
     }
 ]
 
