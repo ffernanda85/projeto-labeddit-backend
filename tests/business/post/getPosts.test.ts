@@ -22,7 +22,7 @@ describe("Testes getPosts", () => {
             token: "token-mock-flavia"
         })
         const output = await postBusiness.getPosts(input)
-        expect(output).toHaveLength(2)
+        expect(output).toHaveLength(3)
     })
 
     test("Deve retornar erro 'invalid token'", async () => {

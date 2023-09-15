@@ -32,7 +32,6 @@ describe("Testes editPost", () => {
         expect.assertions(3)
 
         try {
-            
             const input = EditPostSchema.parse({
                 id: "post01",
                 token: "token-mock-flaviaa",
@@ -53,7 +52,6 @@ describe("Testes editPost", () => {
         expect.assertions(3)
 
         try {
-            
             const input = EditPostSchema.parse({
                 id: "post00",
                 token: "token-mock-flavia",
@@ -74,7 +72,6 @@ describe("Testes editPost", () => {
         expect.assertions(3)
 
         try {
-            
             const input = EditPostSchema.parse({
                 id: "post01",
                 token: "token-mock-izabela",

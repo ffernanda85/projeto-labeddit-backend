@@ -1,5 +1,6 @@
 import { BaseDatabase } from "../../../src/database/BaseDatabase";
 import { PostModel, PostModelDB } from "../../../src/models/post/Post"
+import { usersMock } from "../user/UserDatabaseMock";
 
 const postsMock: PostModelDB[] = [
     {
@@ -21,6 +22,16 @@ const postsMock: PostModelDB[] = [
         comments: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
+    },
+    {
+        id: "post03",
+        creator_id: "id-mock-izabela",
+        content: "string2",
+        likes: 0,
+        dislikes: 0,
+        comments: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
     }
 ]
 
@@ -32,7 +43,8 @@ export class PostDatabaseMock extends BaseDatabase {
     }
 
     public getAllPosts = async (): Promise<PostModel[]> => {
-        const result: PostModel[] =  postsMock.map(postMock => {
+        const result: PostModel[] = postsMock.map(postMock => {
+            const findUser = usersMock.find(user => user.id === postMock.creator_id)
             return {
                 id: postMock.id,
                 creator_id: postMock.creator_id,
@@ -43,7 +55,7 @@ export class PostDatabaseMock extends BaseDatabase {
                 created_at: postMock.created_at,
                 updated_at: postMock.updated_at,
                 creatorId: postMock.creator_id,
-                creatorName: "name"
+                creatorName: findUser?.name as string
             }
         })
         return result

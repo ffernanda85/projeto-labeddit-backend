@@ -30,7 +30,6 @@ describe("Testes deletePost", () => {
         expect.assertions(3)
 
         try {
-            
             const input = DeletePostSchema.parse({
                 id: "post01",
                 token: "token-mock-flaviaa"
@@ -49,7 +48,6 @@ describe("Testes deletePost", () => {
         expect.assertions(3)
 
         try {
-            
             const input = DeletePostSchema.parse({
                 id: "post00",
                 token: "token-mock-flavia"
