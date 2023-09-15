@@ -1,1 +1,1 @@
-# projeto-labeddit-backend
+# Projeto Labeddit - Backend
