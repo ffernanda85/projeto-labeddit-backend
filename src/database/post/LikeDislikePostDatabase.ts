@@ -1,7 +1,7 @@
 import { PostLikeDislikeDBModel } from "../../models/post/Post";
 import { BaseDatabase } from "../BaseDatabase";
 
-export class LikeDislikeDatabase extends BaseDatabase{
+export class LikeDislikePostDatabase extends BaseDatabase{
     TABLE_NAME = 'posts_likes_dislikes';
 
     public findLikesDislikes = async (id_post: string, id_user: string): Promise<PostLikeDislikeDBModel | undefined> => {

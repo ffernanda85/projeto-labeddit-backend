@@ -5,7 +5,7 @@ import { CreatePostSchema } from "../../dtos/post/createPost.dto";
 import { PostBusiness } from "../../business/post/PostBusiness";
 import { GetPostSchema } from "../../dtos/post/getPost.dto";
 import { EditPostSchema } from "../../dtos/post/editPost.dto";
-import { DeletePostSchema } from "../../dtos/post/deletePost.dto";
+import { DeletePostOutputDTO, DeletePostSchema } from "../../dtos/post/deletePost.dto";
 import { LikeDislikePostSchema } from "../../dtos/post/likeDislikePost.dto";
 
 
@@ -23,9 +23,9 @@ export class PostController {
                 content: req.body.content
             })
 
-            await this.postBusiness.createPost(input)
+            const output = await this.postBusiness.createPost(input)
 
-            res.status(201).send()
+            res.status(201).send(output)
         } catch (error: unknown) {
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
@@ -67,9 +67,9 @@ export class PostController {
                 content: req.body.content
             })
 
-            await this.postBusiness.editPost(input)
+            const output = await this.postBusiness.editPost(input)
 
-            res.status(200).send()
+            res.status(200).send(output)
 
         } catch (error: unknown) {
             if (error instanceof ZodError) {
@@ -90,9 +90,9 @@ export class PostController {
                 id: req.params.id
             })
 
-            await this.postBusiness.deletePost(input)
+            const output: DeletePostOutputDTO = await this.postBusiness.deletePost(input)
 
-            res.status(200).send()
+            res.status(200).send(output)
         } catch (error: unknown) {
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
@@ -114,9 +114,9 @@ export class PostController {
                 like: req.body.like
             })
 
-            await this.postBusiness.likeDislike(input)
+            const output = await this.postBusiness.likeDislike(input)
 
-            res.status(200).send()
+            res.status(200).send(output)
             
         } catch (error: unknown) {
             console.log(error)

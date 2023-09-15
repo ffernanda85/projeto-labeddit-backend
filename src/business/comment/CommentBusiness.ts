@@ -5,7 +5,7 @@ import { CreateCommentInputDTO, CreateCommentOutputDTO } from "../../dtos/commen
 import { DeleteCommentInputDTO, DeleteCommentOutputDTO } from "../../dtos/comment/deleteComment.dto";
 import { EditCommentInputDTO, EditCommentOutputDTO } from "../../dtos/comment/editComment.dto";
 import { GetCommentsInputDTO, GetCommentsOutputDTO } from "../../dtos/comment/getComments.dto";
-import { LikeDislikeCommentInputDTO } from "../../dtos/comment/likeDislikeComment.dto";
+import { LikeDislikeCommentInputDTO, LikeDislikeCommentOutputDTO } from "../../dtos/comment/likeDislikeComment.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
 import { Comment, CommentLikeDislikeDBModel, CommentModel, CommentModelDB } from "../../models/comments/Comment";
@@ -50,8 +50,7 @@ export class CommentBusiness {
         await  this.postDatabase.incrementComments(newComment.getPostId())
 
         const output: CreateCommentOutputDTO = {
-            message: "comment created",
-            comment: newComment.commentToBusinessModel(payload.name)
+            message: "comment created"
         }
         return output
     }
@@ -130,7 +129,7 @@ export class CommentBusiness {
         return comments
     }
 
-    public likeDislikeComment = async (input: LikeDislikeCommentInputDTO): Promise<void> => {
+    public likeDislikeComment = async (input: LikeDislikeCommentInputDTO): Promise<LikeDislikeCommentOutputDTO> => {
         const { id: commentId, token, like } = input
         
         //verificando se token é válido
@@ -163,6 +162,9 @@ export class CommentBusiness {
                 await this.commentDatabase.incrementLikeComment(commentId)
                 : 
                 await this.commentDatabase.incrementDislikeComment(commentId)
+            
+                const output: LikeDislikeCommentOutputDTO = "success"
+                return output
         
         } else {
             //se constar o registro vamos fazer o update
@@ -176,6 +178,9 @@ export class CommentBusiness {
                 await this.commentDatabase.reverseLikeUpComment(commentId)
                 : 
                 await this.commentDatabase.reverseDislikeUpComment(commentId)
+                
+                const output: LikeDislikeCommentOutputDTO = "success"
+                return output
 
             } else {
                 //se for igual deletamos o registro e decrementamos o like ou dislike na tabela comments
@@ -185,6 +190,9 @@ export class CommentBusiness {
                     await this.commentDatabase.decrementLikeComment(commentId)
                     :
                     await this.commentDatabase.decrementDislikeComment(commentId)
+                
+                const output: LikeDislikeCommentOutputDTO = "success"
+                return output
             }
         }
     }
