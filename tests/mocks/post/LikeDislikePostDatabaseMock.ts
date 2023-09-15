@@ -3,9 +3,14 @@ import { PostLikeDislikeDBModel } from "../../../src/models/post/Post";
 
 const likesDislikesPostMock: PostLikeDislikeDBModel[] = [
     {
+        user_id: "id-mock-flavia",
+        post_id: "post01",
+        like: 1
+    },
+    {
         user_id: "id-mock-izabela",
         post_id: "post02",
-        like: 1
+        like: 0
     }
 ]
 

@@ -144,27 +144,22 @@ export class PostBusiness {
 
     public likeDislike = async (input: LikeDislikePostInputDTO): Promise<LikeDislikePostOutputDTO> => {
         const { id: postId, token, like } = input
-        
+
         /* Verificando se o token é válido */
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) {
             throw new BadRequestError("invalid token");
         }
-        
+
         /* Verificando se o post com o ID informado existe no DB */
         const postDB: PostModelDB | undefined = await this.postDatabase.getPostById(postId)
         if (!postDB) {
             throw new NotFoundError("id not found");
         }
-
-        /* Verificando se o usuário é o criador da postagem */
-        const { creator_id } = postDB
-        const { id: user_id } = payload
-        if (creator_id === user_id) {
-            throw new BadRequestError("creator can't like or dislike the post");
-        }
         
-        /* Transformando o like em inteiro para passar para o DB */
+        const { id: user_id } = payload
+
+        /* Transformando o like em number */
         const likePost: number = Number(like)
 
         /* Criando o obj de likes_dislikes */
@@ -182,22 +177,14 @@ export class PostBusiness {
             await this.likeDislikePostDatabase.createLikesDislikes(like_dislike)
             /* se like for 1 incrementamos o likes, senão incrementamos o dislikes na posts */
             likePost === 1 ?
-                await this.postDatabase.incrementLike(postId) :
+                await this.postDatabase.incrementLike(postId)
+                :
                 await this.postDatabase.incrementDislike(postId)
 
             /* Se houver registro */
         } else {
             //1) verificamos se o like enviado é o mesmo existente
-            if (likesDislikesExists.like === likePost) {
-                //nesse caso deletamos o registro existente
-                await this.likeDislikePostDatabase.deleteLikesDislikes(user_id, postId)
-
-                likePost === 1 ?
-                    await this.postDatabase.decrementLike(postId)
-                    :
-                    await this.postDatabase.decrementDislike(postId)
-                
-            } else {
+            if (likesDislikesExists.like !== likePost) {
                 //se o like enviado não for igual ao existente no registro, vamos precisar editar nosso registro no DB
                 await this.likeDislikePostDatabase.updateLikesDislikes(like_dislike)
 
@@ -205,11 +192,19 @@ export class PostBusiness {
                     await this.postDatabase.reverseLikeUp(postId)
                     :
                     await this.postDatabase.reverseDislikeUp(postId)
+
+            } else {
+
+                //nesse caso deletamos o registro existente
+                await this.likeDislikePostDatabase.deleteLikesDislikes(user_id, postId)
+
+                likePost === 1 ?
+                    await this.postDatabase.decrementLike(postId)
+                    :
+                    await this.postDatabase.decrementDislike(postId)
             }
         }
-        const output: LikeDislikePostOutputDTO = {
-            message: "success"
-        }
+        const output: LikeDislikePostOutputDTO = "success"
         return output
     }
 }
