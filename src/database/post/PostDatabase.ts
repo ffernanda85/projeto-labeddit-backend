@@ -17,6 +17,7 @@ export class PostDatabase extends BaseDatabase {
                 "posts.content",
                 "posts.likes",
                 "posts.dislikes",
+                "posts.comments",
                 "posts.created_at",
                 "posts.updated_at",
                 "users.id as creatorId",
