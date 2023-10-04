@@ -7,6 +7,7 @@ import { GetPostSchema } from "../../dtos/post/getPost.dto";
 import { EditPostSchema } from "../../dtos/post/editPost.dto";
 import { DeletePostOutputDTO, DeletePostSchema } from "../../dtos/post/deletePost.dto";
 import { LikeDislikePostSchema } from "../../dtos/post/likeDislikePost.dto";
+import { GetPostByIdSchema } from "../../dtos/post/getPostById.dto";
 
 
 export class PostController {
@@ -45,6 +46,28 @@ export class PostController {
             })
 
             const output = await this.postBusiness.getPosts(input)
+
+            res.status(200).send(output)
+        } catch (error: unknown) {
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            } else if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("unexpected error")
+            }
+        }
+    }
+    
+    public getPostById = async (req: Request, res: Response): Promise<void> => {
+        try {
+
+            const input = GetPostByIdSchema.parse({
+                id: req.params.id,
+                token: req.headers.authorization
+            })
+
+            const output = await this.postBusiness.getPostById(input)
 
             res.status(200).send(output)
         } catch (error: unknown) {
@@ -119,7 +142,6 @@ export class PostController {
             res.status(200).send(output)
             
         } catch (error: unknown) {
-            console.log(error)
             if (error instanceof ZodError) {
                 res.status(400).send(error.issues)
             } else if (error instanceof BaseError) {

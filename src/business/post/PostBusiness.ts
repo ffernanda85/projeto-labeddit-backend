@@ -4,10 +4,11 @@ import { CreatePostInputDTO, CreatePostOutputDTO } from "../../dtos/post/createP
 import { DeletePostInputDTO, DeletePostOutputDTO } from "../../dtos/post/deletePost.dto";
 import { EditPostInputDTO, EditPostOutputDTO } from "../../dtos/post/editPost.dto";
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dtos/post/getPost.dto";
+import { GetPostByIdInputDTO, GetPostByIdOutputDTO } from "../../dtos/post/getPostById.dto";
 import { LikeDislikePostInputDTO, LikeDislikePostOutputDTO } from "../../dtos/post/likeDislikePost.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotFoundError";
-import { PostLikeDislikeDBModel, Post, PostModelDB } from "../../models/post/Post";
+import { PostLikeDislikeDBModel, Post, PostModelDB, PostModel } from "../../models/post/Post";
 import { TokenPayload, USER_ROLES } from "../../models/user/User";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenManager } from "../../services/TokenManager";
@@ -77,6 +78,33 @@ export class PostBusiness {
             return result.postToBusinessModel(post.creatorId, post.creatorName)
         })
         return posts
+    }
+
+    public getPostById = async (input: GetPostByIdInputDTO): Promise<GetPostByIdOutputDTO> => {
+        const { id, token } = input
+
+        /* validação do token recebido no headers */
+        const payload = this.tokenManager.getPayload(token)
+        if (payload === null) {
+            throw new BadRequestError("invalid token");
+        }
+        /* Pegando postagens do DB */
+        const postDB: PostModel | undefined = await this.postDatabase.getPostById(id)
+        if (!postDB) throw new NotFoundError("Id Not found");
+        
+        /* Instanciando a postagem e modelando com o método postToBusinessModel criado dentro da class Post */
+        const post = new Post(
+                postDB.id,
+                postDB.creator_id,
+                postDB.content,
+                postDB.likes,
+                postDB.dislikes,
+                postDB.comments,
+                postDB.created_at,
+                postDB.updated_at
+        )
+        const output: GetPostByIdOutputDTO = post.postToBusinessModel(postDB.creatorName, postDB.creatorName)
+        return output
     }
 
     public editPost = async (input: EditPostInputDTO): Promise<EditPostOutputDTO> => {

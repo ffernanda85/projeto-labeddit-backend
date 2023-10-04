@@ -21,8 +21,10 @@ const postController = new PostController(
 
 /*=================== Create Post =========================*/
 postRouter.post("/", postController.createPost)
-/*=================== Get Post ============================*/
+/*=================== Get Posts ============================*/
 postRouter.get("/", postController.getPosts)
+/*=================== Get Post By Id ============================*/
+postRouter.get("/:id", postController.getPostById)
 /*=================== Edit Post ===========================*/
 postRouter.put("/:id", postController.editPost)
 /*=================== Delete Post =========================*/

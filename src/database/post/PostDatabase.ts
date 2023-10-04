@@ -28,9 +28,25 @@ export class PostDatabase extends BaseDatabase {
         return postsDB
     }
 
-    public getPostById = async (id: string): Promise<PostModelDB> => {
-        const [postDB]: PostModelDB[] = await BaseDatabase.connection(this.TABLE_NAME)
-            .where({ id })
+    public getPostById = async (id: string): Promise<PostModel> => {
+        const [postDB]: PostModel[] = await BaseDatabase.connection(this.TABLE_NAME)
+        .select(
+            "posts.id",
+            "posts.creator_id",
+            "posts.content",
+            "posts.likes",
+            "posts.dislikes",
+            "posts.comments",
+            "posts.created_at",
+            "posts.updated_at",
+            "users.id as creatorId",
+            "users.name as creatorName"
+        )
+        .innerJoin("users", "users.id", "posts.creator_id")
+
+        
+        /* await BaseDatabase.connection(this.TABLE_NAME)
+            .where({ id }) */
 
         return postDB
     }
