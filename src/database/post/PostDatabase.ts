@@ -30,21 +30,21 @@ export class PostDatabase extends BaseDatabase {
 
     public getPostById = async (id: string): Promise<PostModel> => {
         const [postDB]: PostModel[] = await BaseDatabase.connection(this.TABLE_NAME)
-        .select(
-            "posts.id",
-            "posts.creator_id",
-            "posts.content",
-            "posts.likes",
-            "posts.dislikes",
-            "posts.comments",
-            "posts.created_at",
-            "posts.updated_at",
-            "users.id as creatorId",
-            "users.name as creatorName"
-        )
-        .innerJoin("users", "users.id", "posts.creator_id")
+            .select(
+                "posts.id",
+                "posts.creator_id",
+                "posts.content",
+                "posts.likes",
+                "posts.dislikes",
+                "posts.comments",
+                "posts.created_at",
+                "posts.updated_at",
+                "users.id as creatorId",
+                "users.name as creatorName"
+            )
+            .innerJoin("users", "users.id", "posts.creator_id")
+            .where({"posts.id" : `${ id }`})
 
-        
         /* await BaseDatabase.connection(this.TABLE_NAME)
             .where({ id }) */
 
@@ -110,6 +110,6 @@ export class PostDatabase extends BaseDatabase {
         await BaseDatabase.connection(this.TABLE_NAME)
             .increment('dislikes')
             .decrement('likes')
-            .where({ id: postId })        
+            .where({ id: postId })
     }
 }
