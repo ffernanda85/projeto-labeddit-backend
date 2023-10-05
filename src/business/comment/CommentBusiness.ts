@@ -21,7 +21,7 @@ export class CommentBusiness {
         private idGenerator: IdGenerator,
         private postDatabase: PostDatabase,
         private likeDislikeCommentDatabase: LikeDislikeCommentDatabase
-    ){}
+    ) { }
 
     public createComment = async (input: CreateCommentInputDTO): Promise<CreateCommentOutputDTO> => {
         const { token, content, post_id } = input
@@ -33,7 +33,7 @@ export class CommentBusiness {
         if (!postDB) throw new NotFoundError("post not found");
 
         const id = this.idGenerator.generate()
-        
+
         const newComment = new Comment(
             id,
             post_id,
@@ -42,12 +42,13 @@ export class CommentBusiness {
             0,
             0,
             new Date().toISOString(),
-            new Date().toISOString()
+            new Date().toISOString(),
+            ""
         )
         //alimentando a tabela comments DB
         await this.commentDatabase.insertCommentDB(newComment.commentToDBModel())
         //incrementando a coluna comments na tabela de posts referenciando o id do post
-        await  this.postDatabase.incrementComments(newComment.getPostId())
+        await this.postDatabase.incrementComments(newComment.getPostId())
 
         const output: CreateCommentOutputDTO = {
             message: "comment created"
@@ -61,16 +62,16 @@ export class CommentBusiness {
         //verificar se o token é válido
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) throw new BadRequestError("invalid token");
-        
+
         //verificar se o comentário existe no DB pelo ID
         const commentDB: CommentModelDB | undefined = await this.commentDatabase.findCommentById(commentId)
-        if(!commentDB) throw new NotFoundError("Id Comment not found");
-        
+        if (!commentDB) throw new NotFoundError("Id Comment not found");
+
         //verificar se o token é do criador do comentário
         if (payload.id !== commentDB.creator_id) throw new BadRequestError("only the creator can edit the comment");
-                        
+
         await this.commentDatabase.updateComment(content, commentId)
-        
+
         const output: EditCommentOutputDTO = {
             message: "updated comment"
         }
@@ -83,7 +84,7 @@ export class CommentBusiness {
         //verificando se o token é válido
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) throw new BadRequestError("invalid token");
-        
+
         //verificando se o commentId existe no DB
         const commentDB: CommentModelDB | undefined = await this.commentDatabase.findCommentById(commentId)
         if (!commentDB) throw new NotFoundError("Id comment not found");
@@ -110,11 +111,17 @@ export class CommentBusiness {
         //verificando se o postId existe no DB
         const postDB: PostModelDB = await this.postDatabase.getPostById(postId)
         if (!postDB) throw new NotFoundError("postId not found");
-        
+
         const commentsDB: CommentModel[] = await this.commentDatabase.getCommentsByPostId(postId)
-        
-        const comments: GetCommentsOutputDTO = commentsDB.map(comment => {
-           return new Comment(
+
+        const comments = Promise.all(commentsDB.map( async (comment) => {
+            
+            //verificando se existe algum registro de like do usuário logado em algum comentário
+            const findLike = await this.likeDislikeCommentDatabase.findLikeDislike(payload.id, comment.id)
+            let liked = "neutral"
+            if (findLike) liked = findLike.like === 1 ? "like" : "dislike"
+                        
+            return new Comment(
                 comment.id,
                 comment.post_id,
                 comment.creator_id,
@@ -122,16 +129,17 @@ export class CommentBusiness {
                 comment.likes,
                 comment.dislikes,
                 comment.created_at,
-                comment.updated_at
+                comment.updated_at,
+                liked
             ).commentToBusinessModel(comment.creatorName)
-        })
+        }))
 
         return comments
     }
 
     public likeDislikeComment = async (input: LikeDislikeCommentInputDTO): Promise<LikeDislikeCommentOutputDTO> => {
         const { id: commentId, token, like } = input
-        
+
         //verificando se token é válido
         const payload: TokenPayload | null = this.tokenManager.getPayload(token)
         if (payload === null) throw new BadRequestError("invalid token");
@@ -153,19 +161,19 @@ export class CommentBusiness {
 
         //verificando se já existe este registro de like_dislike_comment 
         const likeDislikeDB: CommentLikeDislikeDBModel | undefined = await this.likeDislikeCommentDatabase.findLikeDislike(userId, commentId)
-        
+
         if (!likeDislikeDB) {
             //se não constar registro vamos criar    
             await this.likeDislikeCommentDatabase.insertLikeDislike(likeDislikeComment)
             //verificar se recebemos um like ou dislike para poder incrementar a tabela comments
             likeDB === 1 ?
                 await this.commentDatabase.incrementLikeComment(commentId)
-                : 
+                :
                 await this.commentDatabase.incrementDislikeComment(commentId)
-            
-                const output: LikeDislikeCommentOutputDTO = "success"
-                return output
-        
+
+            const output: LikeDislikeCommentOutputDTO = "success"
+            return output
+
         } else {
             //se constar o registro vamos fazer o update
             //1) verificamos se o like já registrado é diferente do enviado agora
@@ -175,10 +183,10 @@ export class CommentBusiness {
                 //e fazemos a reversão do like e dislike na tabela comments
                 //se likeDB for 1 vai incrementar like e decrementar dislike e vice-versa(na tabela comments)
                 likeDB === 1 ?
-                await this.commentDatabase.reverseLikeUpComment(commentId)
-                : 
-                await this.commentDatabase.reverseDislikeUpComment(commentId)
-                
+                    await this.commentDatabase.reverseLikeUpComment(commentId)
+                    :
+                    await this.commentDatabase.reverseDislikeUpComment(commentId)
+
                 const output: LikeDislikeCommentOutputDTO = "success"
                 return output
 
@@ -190,7 +198,7 @@ export class CommentBusiness {
                     await this.commentDatabase.decrementLikeComment(commentId)
                     :
                     await this.commentDatabase.decrementDislikeComment(commentId)
-                
+
                 const output: LikeDislikeCommentOutputDTO = "success"
                 return output
             }

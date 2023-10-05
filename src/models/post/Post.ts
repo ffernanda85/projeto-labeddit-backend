@@ -26,7 +26,8 @@ export interface PostModelOutput {
     creator: {
         id: string,
         name: string
-    }
+    },
+    liked: string
 }
 
 export interface PostLikeDislikeDBModel {
@@ -44,7 +45,8 @@ export class Post {
         private dislikes: number,
         private comments: number,
         private createdAt: string,
-        private updatedAt: string
+        private updatedAt: string,
+        private liked: string
     ) { }
     
     public getId() : string {
@@ -127,7 +129,8 @@ export class Post {
             creator: {
                 id: creatorId,
                 name: creatorName
-            }
+            },
+            liked: this.liked
         }
     }
 

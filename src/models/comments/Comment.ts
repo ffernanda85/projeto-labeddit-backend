@@ -24,7 +24,8 @@ export interface CommentModelOutput {
     creator: {
         id: string,
         name: string
-    }
+    },
+    liked: string
 }
 
 export interface CommentLikeDislikeDBModel {
@@ -42,7 +43,8 @@ export class Comment {
         private likes: number,
         private dislikes: number,
         private createdAt: string,
-        private updatedAt: string
+        private updatedAt: string,
+        private liked: string
     ) { }
     
     public getId() : string {
@@ -118,7 +120,8 @@ export class Comment {
             creator: {
                 id: this.creatorId,
                 name: creatorName
-            } 
+            },
+            liked: this.liked
         }
     }
 }

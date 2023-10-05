@@ -43,7 +43,8 @@ export class PostBusiness {
             0,
             0,
             new Date().toISOString(),
-            new Date().toISOString()
+            new Date().toISOString(),
+            "baseline"
         )
         const newPostDB: PostModelDB = newPost.postToDBModel()
         await this.postDatabase.insertPostDB(newPostDB)
@@ -64,7 +65,18 @@ export class PostBusiness {
         /* Pegando postagens do DB */
         const postsDB = await this.postDatabase.getAllPosts()
         /* Instanciando as postagens e modelando com o método postToBusinessModel criado dentro da class Post */
-        const posts: GetPostsOutputDTO = postsDB.map((post) => {
+        const posts = Promise.all(postsDB.map(async (post) => {
+            
+            //verificando se já existe o registro de like/dislike desse user neste post
+            const findLike = await this.likeDislikePostDatabase.findLikesDislikes(post.id, payload.id)
+
+            //definindo o liked
+            let liked = "neutral" //definindo modo neutro (sem like e sem dislike)
+            if (findLike) {
+                //verificando se o arquivo guardado é um like ou dislike
+                liked = findLike.like === 1 ? "like" : "dislike"
+            }
+            //criando a instância com o liked correto            
             const result = new Post(
                 post.id,
                 post.creator_id,
@@ -73,10 +85,11 @@ export class PostBusiness {
                 post.dislikes,
                 post.comments,
                 post.created_at,
-                post.updated_at
+                post.updated_at,
+                liked
             )
             return result.postToBusinessModel(post.creatorId, post.creatorName)
-        })
+        }))
         return posts
     }
 
@@ -101,7 +114,8 @@ export class PostBusiness {
                 postDB.dislikes,
                 postDB.comments,
                 postDB.created_at,
-                postDB.updated_at
+                postDB.updated_at,
+                ""
         )
         const output: GetPostByIdOutputDTO = post.postToBusinessModel(postDB.creatorName, postDB.creatorName)
         return output
@@ -135,7 +149,8 @@ export class PostBusiness {
             postDB.dislikes,
             postDB.comments,
             postDB.created_at,
-            postDB.updated_at
+            postDB.updated_at,
+            ""
         )
         const postToUpdateDB: PostModelDB = postToUpdate.postToDBModel()
         await this.postDatabase.updatePost(postToUpdateDB)
